@@ -1,3 +1,12 @@
+/**
+ * jspsych-survey-control
+ * A jsPsych plugin for asking control questions during online behavioural
+ * experiments.
+ *
+ * Henry Burgess
+ *
+ */
+
 jsPsych.plugins['survey-control'] = (function() {
   const plugin = {};
 
@@ -61,6 +70,7 @@ jsPsych.plugins['survey-control'] = (function() {
     const trialData = {
       selected_response: -1,
       correct: false,
+      rt: -1,
     };
 
     // Inject styling
@@ -108,6 +118,8 @@ jsPsych.plugins['survey-control'] = (function() {
     html += '</div>';
     html += '</div>';
 
+    const startTime = (new Date).getTime();
+
     // Update displayed HTML
     displayElement.innerHTML = html;
 
@@ -116,6 +128,10 @@ jsPsych.plugins['survey-control'] = (function() {
      * @param {object} _event information about the response
      */
     function selectionHandler() {
+      const endTime = (new Date).getTime();
+      const responseTime = endTime - startTime;
+      trialData.rt = responseTime;
+
       const optionIndex =
           document.getElementById('control-options').selectedIndex;
       trialData.selected_response = optionIndex;
