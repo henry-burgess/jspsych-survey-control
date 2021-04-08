@@ -170,7 +170,8 @@ jsPsych.plugins['survey-control'] = (function() {
       // Update binding to continue trials
       document.getElementById('option-selection-button')
           .addEventListener('click', function() {
-            jsPsych.finishTrial();
+            displayElement.innerHTML = '';
+            jsPsych.finishTrial(trialData);
           });
     }
 
