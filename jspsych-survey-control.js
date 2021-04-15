@@ -26,18 +26,32 @@ jsPsych.plugins['survey-control'] = (function() {
         description: 'A list of responses that the participant can select as ' +
           'their answer to the control question.',
       },
-      correct_option: {
+      option_correct: {
         type: jsPsych.plugins.parameterType.INT,
         pretty_name: 'Index of correct option',
         default: undefined,
         description: 'The index of the correct response in the list of ' +
           'responses. Indexed from 0.',
       },
+      option_keys: {
+        type: jsPsych.plugins.parameterType.COMPLEX,
+        pretty_name: 'Keycodes assigned to each option',
+        default: [],
+        description: 'Define a key corresponding to each ' +
+          'option that is presented. Ideal for alternate control schemes.',
+      },
       button_text: {
         type: jsPsych.plugins.parameterType.STRING,
         pretty_name: 'Button text',
         default: 'Submit',
         description: 'The text displayed on the button below the options.',
+      },
+      button_key: {
+        type: jsPsych.plugins.parameterType.STRING,
+        pretty_name: 'Button key',
+        default: '',
+        description: 'Specify a keypress to click the button. ' +
+          'Ideal for alternate control schemes.',
       },
       feedback_correct: {
         type: jsPsych.plugins.parameterType.STRING,
@@ -65,7 +79,10 @@ jsPsych.plugins['survey-control'] = (function() {
 
     const question = trial.question;
     const options = trial.options;
-    const correctOptionIndex = trial.correct_option;
+    const correctOptionIndex = trial.option_correct;
+
+    let optionKeysEnabled = trial.option_keys.length > 0;
+    const buttonKeyEnabled = trial.button_key !== '';
 
     const trialData = {
       selected_response: -1,
@@ -123,11 +140,53 @@ jsPsych.plugins['survey-control'] = (function() {
     // Update displayed HTML
     displayElement.innerHTML = html;
 
+    // Check for any custom key information.
+    if (optionKeysEnabled) {
+      // Check that the number of keys equals the number of options.
+      if (trial.option_keys.length !== trial.options.length) {
+        console.warn(`${trial.option_keys.length} keys specified ` +
+          `for ${trial.options.length} options. Keys will not be bound.`);
+        optionKeysEnabled = false;
+      } else {
+        // Bind the keys to selecting each option
+        document.addEventListener('keyup', buttonHandler);
+      }
+    }
+
+    /**
+     * Handle the pressing of a button
+     * @param {object} _event information about the button press
+     */
+    function buttonHandler(_event) {
+      // Check what kind of button has been pressed
+      _event.preventDefault();
+      const keyCode = _event.code;
+
+      // Options can be selected by keys
+      if (optionKeysEnabled) {
+        // Check what key was pressed
+        const optionPressedIndex = trial.option_keys.indexOf(keyCode);
+        if (optionPressedIndex >= 0 &&
+            document.getElementById('control-options').disabled === false) {
+          document.getElementById('control-options').selectedIndex =
+            `${optionPressedIndex}`;
+        }
+      }
+
+      // Button can be pressed using a key
+      if (buttonKeyEnabled) {
+        if (keyCode === trial.button_key) {
+          // Click the button if the key is pressed
+          document.getElementById('option-selection-button').click();
+        }
+      }
+    }
+
     /**
      * Handle the selection of a response
      * @param {object} _event information about the response
      */
-    function selectionHandler() {
+    function selectionHandler(_event) {
       const endTime = (new Date).getTime();
       const responseTime = endTime - startTime;
       trialData.rt = responseTime;
@@ -170,6 +229,9 @@ jsPsych.plugins['survey-control'] = (function() {
       // Update binding to continue trials
       document.getElementById('option-selection-button')
           .addEventListener('click', function() {
+            // Remove event listeners
+            document.removeEventListener('keyup', buttonHandler);
+
             displayElement.innerHTML = '';
             jsPsych.finishTrial(trialData);
           });
