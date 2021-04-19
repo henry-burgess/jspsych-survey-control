@@ -78,6 +78,13 @@ jsPsych.plugins['survey-control'] = (function() {
         description: 'HTML code included beneath the control questions ' +
           'to instruct the participant on how to complete the questions.',
       },
+      timeout: {
+        type: jsPsych.plugins.parameterType.INT,
+        pretty_name: 'Timeout duration for question',
+        default: 30000,
+        description: 'Timeout to be enforced for completing the control ' +
+          'question.',
+      },
     },
   };
 
@@ -90,6 +97,9 @@ jsPsych.plugins['survey-control'] = (function() {
 
     let optionKeysEnabled = trial.option_keys.length > 0;
     const buttonKeyEnabled = trial.button_key !== '';
+
+    let mainTimeout = null;
+    let continueTimeout = null;
 
     const trialData = {
       selected_response: -1,
@@ -171,6 +181,20 @@ jsPsych.plugins['survey-control'] = (function() {
       }
     }
 
+    // Add timeout for completing the question
+    mainTimeout = setTimeout(() => {
+      // Mark the response as incorrect before waiting 5 seconds
+      displayFeedback(trial.feedback_incorrect, 'red');
+      document.getElementById('control-options').disabled = true;
+      trialData.correct = false;
+
+      // Clear this timeout
+      clearTimeout(mainTimeout);
+
+      // Start a 5 second countdown before continuing
+      continueTimeout = setTimeout(endTrial, 5000);
+    }, trial.timeout);
+
     /**
      * Handle the pressing of a button
      * @param {object} _event information about the button press
@@ -246,13 +270,22 @@ jsPsych.plugins['survey-control'] = (function() {
 
       // Update binding to continue trials
       document.getElementById('option-selection-button')
-          .addEventListener('click', function() {
-            // Remove event listeners
-            document.removeEventListener('keyup', buttonHandler);
+          .addEventListener('click', endTrial);
+    }
 
-            displayElement.innerHTML = '';
-            jsPsych.finishTrial(trialData);
-          });
+    /**
+     * End the trial, clean up event listeners and HTML,
+     * append data to jsPsych
+     */
+    function endTrial() {
+      // Remove event listeners
+      document.removeEventListener('keyup', buttonHandler);
+
+      // Clear a timeout that may have called this function
+      clearTimeout(continueTimeout);
+
+      displayElement.innerHTML = '';
+      jsPsych.finishTrial(trialData);
     }
 
     // Add binding for when a response is selected
