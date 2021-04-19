@@ -71,6 +71,13 @@ jsPsych.plugins['survey-control'] = (function() {
         default: function() {},
         description: 'The function called once feedback has been given.',
       },
+      instructions: {
+        type: jsPsych.plugins.parameterType.STRING,
+        pretty_name: 'HTML code for optional instructions',
+        default: '',
+        description: 'HTML code included beneath the control questions ' +
+          'to instruct the participant on how to complete the questions.',
+      },
     },
   };
 
@@ -133,6 +140,17 @@ jsPsych.plugins['survey-control'] = (function() {
     html += trial.button_text;
     html += '</button>';
     html += '</div>';
+
+    // Append the instructions if provided
+    if (trial.instructions !== '') {
+      html += '<br>';
+      html += '<hr>';
+      html += '<br>';
+      html += '<div id="control-question-instructions">';
+      html += trial.instructions;
+      html += '</div>';
+    }
+
     html += '</div>';
 
     const startTime = (new Date).getTime();
