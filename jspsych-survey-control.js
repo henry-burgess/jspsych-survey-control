@@ -30,8 +30,8 @@ jsPsych.plugins['survey-control'] = (function() {
         type: jsPsych.plugins.parameterType.BOOLEAN,
         pretty_name: 'Alternate display for options',
         default: false,
-        description: 'Change the options to display as a series of radio options ' +
-          'instead of a drop-down.',
+        description: 'Change the options to display as a series of radio ' +
+          'options instead of a drop-down.',
       },
       option_correct: {
         type: jsPsych.plugins.parameterType.INT,
@@ -150,13 +150,14 @@ jsPsych.plugins['survey-control'] = (function() {
         'class="jspsych-survey-control-options">';
       html += '<ul style="list-style-type: none; padding-left: 0pt;">';
       for (let i = 0; i < options.length; i++) {
-        html += '<li><input type="radio" id="R' + i + '" name="option" value="R' + i + '">';
+        html += '<li><input type="radio" id="R' + i +
+          '" name="option" value="R' + i + '">';
         html += options[i];
         html += '</input></li>';
       }
       html += '</ul></form>';
     }
-    
+
     html += '</div>';
 
     // Add a placeholder for feedback text
@@ -274,7 +275,7 @@ jsPsych.plugins['survey-control'] = (function() {
       if (trial.options_radio === false) {
         optionIndex = document.getElementById('control-options').selectedIndex;
         trialData.selected_response = optionIndex;
-  
+
         document.getElementById('control-options').disabled = true;
       } else {
         // Get the selected radio button
