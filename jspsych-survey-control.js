@@ -26,6 +26,13 @@ jsPsych.plugins['survey-control'] = (function() {
         description: 'A list of responses that the participant can select as ' +
           'their answer to the control question.',
       },
+      options_radio: {
+        type: jsPsych.plugins.parameterType.BOOLEAN,
+        pretty_name: 'Alternate display for options',
+        default: false,
+        description: 'Change the options to display as a series of radio options ' +
+          'instead of a drop-down.',
+      },
       option_correct: {
         type: jsPsych.plugins.parameterType.INT,
         pretty_name: 'Index of correct option',
@@ -125,16 +132,31 @@ jsPsych.plugins['survey-control'] = (function() {
     html += '<div id="control-question-container">';
     html += '<p class="control-question-text">' +
       question + '</p>';
-    // Add dropdown for options
+
     html += '<div id="control-question-options">';
-    html += '<select required name="control-options" id="control-options" ' +
-      'class="jspsych-survey-control-options">';
-    for (let i = 0; i < options.length; i++) {
-      html += '<option value="R' + i + '">';
-      html += options[i];
-      html += '</option>';
+    if (trial.options_radio === false) {
+      // Add dropdown for options
+      html += '<select required name="control-options" id="control-options" ' +
+        'class="jspsych-survey-control-options">';
+      for (let i = 0; i < options.length; i++) {
+        html += '<option value="R' + i + '">';
+        html += options[i];
+        html += '</option>';
+      }
+      html += '</select>';
+    } else {
+      // Add radio buttons for options
+      html += '<form required name="control-options" id="control-options" ' +
+        'class="jspsych-survey-control-options">';
+      html += '<ul style="list-style-type: none; padding-left: 0pt;">';
+      for (let i = 0; i < options.length; i++) {
+        html += '<li><input type="radio" id="R' + i + '" name="option" value="R' + i + '">';
+        html += options[i];
+        html += '</input></li>';
+      }
+      html += '</ul></form>';
     }
-    html += '</select>';
+    
     html += '</div>';
 
     // Add a placeholder for feedback text
@@ -185,7 +207,17 @@ jsPsych.plugins['survey-control'] = (function() {
     mainTimeout = setTimeout(() => {
       // Mark the response as incorrect before waiting 5 seconds
       displayFeedback(trial.feedback_incorrect, 'red');
-      document.getElementById('control-options').disabled = true;
+
+      // Disable the form options
+      if (trial.options_radio === false) {
+        document.getElementById('control-options').disabled = true;
+      } else {
+        for (let i = 0; i < trial.options.length; i++) {
+          document.getElementById(`R${i}`).disabled = true;
+        }
+      }
+
+      // Store response as incorrect
       trialData.correct = false;
 
       // Clear this timeout
@@ -208,10 +240,15 @@ jsPsych.plugins['survey-control'] = (function() {
       if (optionKeysEnabled) {
         // Check what key was pressed
         const optionPressedIndex = trial.option_keys.indexOf(keyCode);
-        if (optionPressedIndex >= 0 &&
-            document.getElementById('control-options').disabled === false) {
-          document.getElementById('control-options').selectedIndex =
-            `${optionPressedIndex}`;
+        if (optionPressedIndex >= 0) {
+          if (trial.options_radio === false) {
+            if (document.getElementById('control-options').disabled === false) {
+              document.getElementById('control-options').selectedIndex =
+                `${optionPressedIndex}`;
+            }
+          } else {
+            document.getElementById(`R${optionPressedIndex}`).checked = true;
+          }
         }
       }
 
@@ -233,11 +270,21 @@ jsPsych.plugins['survey-control'] = (function() {
       const responseTime = endTime - startTime;
       trialData.rt = responseTime;
 
-      const optionIndex =
-          document.getElementById('control-options').selectedIndex;
-      trialData.selected_response = optionIndex;
-
-      document.getElementById('control-options').disabled = true;
+      let optionIndex;
+      if (trial.options_radio === false) {
+        optionIndex = document.getElementById('control-options').selectedIndex;
+        trialData.selected_response = optionIndex;
+  
+        document.getElementById('control-options').disabled = true;
+      } else {
+        // Get the selected radio button
+        for (let i = 0; i < trial.options.length; i++) {
+          if (document.getElementById(`R${i}`).checked === true) {
+            optionIndex = i;
+          }
+          document.getElementById(`R${i}`).disabled = true;
+        }
+      }
 
       if (optionIndex === correctOptionIndex) {
         displayFeedback(trial.feedback_correct, 'green');
