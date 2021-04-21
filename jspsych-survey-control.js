@@ -7,7 +7,7 @@
  *
  */
 
-jsPsych.plugins['survey-control'] = (function() {
+ jsPsych.plugins['survey-control'] = (function() {
   const plugin = {};
 
   plugin.info = {
@@ -297,6 +297,8 @@ jsPsych.plugins['survey-control'] = (function() {
         displayFeedback(trial.feedback_incorrect, 'red');
         trialData.correct = false;
       }
+
+      clearTimers();
     }
 
     /**
@@ -332,14 +334,21 @@ jsPsych.plugins['survey-control'] = (function() {
       // Remove event listeners
       document.removeEventListener('keyup', buttonHandler);
 
+      clearTimers();
+
+      displayElement.innerHTML = '';
+      jsPsych.finishTrial(trialData);
+    }
+
+    /**
+     * Clear all timers
+     */
+    function clearTimers() {
       // Clear the main timeout
       clearTimeout(mainTimeout);
 
       // Clear a timeout that may have called this function
       clearTimeout(continueTimeout);
-
-      displayElement.innerHTML = '';
-      jsPsych.finishTrial(trialData);
     }
 
     // Add binding for when a response is selected
