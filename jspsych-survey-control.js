@@ -190,6 +190,7 @@ jsPsych.plugins['survey-control'] = (function() {
 
     // Update displayed HTML
     displayElement.innerHTML = html;
+    configureTimeout();
 
     // Check for any custom key information.
     if (optionKeysEnabled) {
@@ -204,29 +205,31 @@ jsPsych.plugins['survey-control'] = (function() {
       }
     }
 
-    // Add timeout for completing the question
-    mainTimeout = setTimeout(() => {
-      // Mark the response as incorrect before waiting 5 seconds
-      displayFeedback(trial.feedback_incorrect, 'red');
+    /**
+     * Configure the timeouts for the trial
+     */
+    function configureTimeout() {
+      // Add timeout for completing the question
+      mainTimeout = setTimeout(() => {
+        // Mark the response as incorrect before waiting 5 seconds
+        displayFeedback(trial.feedback_incorrect, 'red');
 
-      // Disable the form options
-      if (trial.options_radio === false) {
-        document.getElementById('control-options').disabled = true;
-      } else {
-        for (let i = 0; i < trial.options.length; i++) {
-          document.getElementById(`R${i}`).disabled = true;
+        // Disable the form options
+        if (trial.options_radio === false) {
+          document.getElementById('control-options').disabled = true;
+        } else {
+          for (let i = 0; i < trial.options.length; i++) {
+            document.getElementById(`R${i}`).disabled = true;
+          }
         }
-      }
 
-      // Store response as incorrect
-      trialData.correct = false;
+        // Store response as incorrect
+        trialData.correct = false;
 
-      // Clear this timeout
-      clearTimeout(mainTimeout);
-
-      // Start a 5 second countdown before continuing
-      continueTimeout = setTimeout(endTrial, 5000);
-    }, trial.timeout);
+        // Start a 5 second countdown before continuing
+        continueTimeout = setTimeout(endTrial, 5000);
+      }, trial.timeout);
+    }
 
     /**
      * Handle the pressing of a button
@@ -328,6 +331,9 @@ jsPsych.plugins['survey-control'] = (function() {
     function endTrial() {
       // Remove event listeners
       document.removeEventListener('keyup', buttonHandler);
+
+      // Clear the main timeout
+      clearTimeout(mainTimeout);
 
       // Clear a timeout that may have called this function
       clearTimeout(continueTimeout);
