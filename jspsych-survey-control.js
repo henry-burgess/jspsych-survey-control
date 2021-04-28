@@ -7,7 +7,7 @@
  *
  */
 
- jsPsych.plugins['survey-control'] = (function() {
+jsPsych.plugins['survey-control'] = (function() {
   const plugin = {};
 
   plugin.info = {
