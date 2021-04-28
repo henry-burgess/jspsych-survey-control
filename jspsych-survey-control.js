@@ -277,8 +277,6 @@
       let optionIndex;
       if (trial.options_radio === false) {
         optionIndex = document.getElementById('control-options').selectedIndex;
-        trialData.selected_response = optionIndex;
-
         document.getElementById('control-options').disabled = true;
       } else {
         // Get the selected radio button
@@ -289,6 +287,8 @@
           document.getElementById(`R${i}`).disabled = true;
         }
       }
+
+      trialData.selected_response = optionIndex;
 
       if (optionIndex === correctOptionIndex) {
         displayFeedback(trial.feedback_correct, 'green');
