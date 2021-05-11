@@ -61,3 +61,20 @@ _A jsPsych plugin that enables control questions to be added to behavioural expe
 - **Required:** no
 - **Type:** `int`
 - **Description:** A timeout for completing the control questions in milliseconds, default time is 30 seconds.
+
+## Example
+```javascript
+timeline.push({
+  type: 'survey-control',
+  question: 'Why is 6 afraid of 7?',
+  options: [
+    'Because 7 is even and 6 is not.',
+    'Because 7 is a better number.',
+    'Because 7 8 9!',
+  ],
+  option_correct: 2,
+  button_text: 'Submit Answer',
+  feedback_correct: 'Correct!',
+  feedback_incorrect: 'Incorrect.',
+});
+```
