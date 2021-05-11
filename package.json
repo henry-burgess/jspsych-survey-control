@@ -1,6 +1,6 @@
 {
   "name": "jspsych-survey-control",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A jsPsych plugin that enables control questions to be added to behavioural experiments.",
   "main": "jspsych-survey-control.js",
   "scripts": {
