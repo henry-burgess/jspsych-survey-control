@@ -4,7 +4,8 @@
   "description": "A jsPsych plugin that enables control questions to be added to behavioural experiments.",
   "main": "jspsych-survey-control.js",
   "scripts": {
-    "style": "gulp style"
+    "style": "gulp style",
+    "test": "echo \"No test specified\" && exit 0"
   },
   "repository": {
     "type": "git",
