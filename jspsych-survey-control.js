@@ -105,8 +105,15 @@ jsPsych.plugins['survey-control'] = (function() {
     let optionKeysEnabled = trial.option_keys.length > 0;
     const buttonKeyEnabled = trial.button_key !== '';
 
+    // Set to 'true' when input timeout expires
+    let acceptInput = false;
+
+    // Timeouts
     let mainTimeout = null;
+    let inputTimeout = null;
     let continueTimeout = null;
+
+    const inputTimeoutDuration = 100;
 
     const trialData = {
       selected_response: -1,
@@ -229,6 +236,10 @@ jsPsych.plugins['survey-control'] = (function() {
         // Start a 5 second countdown before continuing
         continueTimeout = setTimeout(endTrial, 5000);
       }, trial.timeout);
+
+      inputTimeout = setTimeout(() => {
+        acceptInput = true;
+      }, inputTimeoutDuration);
     }
 
     /**
@@ -236,8 +247,14 @@ jsPsych.plugins['survey-control'] = (function() {
      * @param {object} _event information about the button press
      */
     function buttonHandler(_event) {
-      // Check what kind of button has been pressed
+      // Check if input is being accepted
       _event.preventDefault();
+      if (!acceptInput) {
+        // Do nothing if input is not being accepted yet
+        return;
+      }
+
+      // Check what kind of button has been pressed
       const keyCode = _event.code;
 
       // Options can be selected by keys
@@ -344,6 +361,9 @@ jsPsych.plugins['survey-control'] = (function() {
      * Clear all timers
      */
     function clearTimers() {
+      // Clear the input timeout
+      clearTimeout(inputTimeout);
+
       // Clear the main timeout
       clearTimeout(mainTimeout);
 
