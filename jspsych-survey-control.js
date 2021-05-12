@@ -203,6 +203,7 @@ jsPsych.plugins['survey-control'] = (function() {
 
     // Update displayed HTML
     displayElement.innerHTML = html;
+
     configureTimeout();
 
     // Check for any custom key information.
@@ -216,6 +217,12 @@ jsPsych.plugins['survey-control'] = (function() {
         // Bind the keys to selecting each option
         document.addEventListener('keyup', buttonHandler);
       }
+    }
+
+    // Disable radio buttons until input enabled
+    for (let i = 0; i < trial.options.length; i++) {
+      document.getElementById(`R${i}`).checked = false;
+      document.getElementById(`R${i}`).disabled = true;
     }
 
     /**
@@ -245,6 +252,11 @@ jsPsych.plugins['survey-control'] = (function() {
 
       inputTimeout = setTimeout(() => {
         acceptInput = true;
+        // Enable radio buttons
+        for (let i = 0; i < trial.options.length; i++) {
+          document.getElementById(`R${i}`).checked = false;
+          document.getElementById(`R${i}`).disabled = false;
+        }
       }, inputTimeoutDuration);
     }
 
@@ -274,7 +286,10 @@ jsPsych.plugins['survey-control'] = (function() {
                 `${optionPressedIndex}`;
             }
           } else {
-            document.getElementById(`R${optionPressedIndex}`).checked = true;
+            if (document.getElementById(`R${optionPressedIndex}`).disabled ===
+                false) {
+              document.getElementById(`R${optionPressedIndex}`).checked = true;
+            }
           }
         }
       }
