@@ -85,6 +85,12 @@ jsPsych.plugins['survey-control'] = (function() {
         description: 'HTML code included beneath the control questions ' +
           'to instruct the participant on how to complete the questions.',
       },
+      input_timeout: {
+        type: jsPsych.plugins.parameterType.INT,
+        pretty_name: 'Timeout duration for input',
+        default: 300,
+        description: 'Timeout before input can be given.',
+      },
       timeout: {
         type: jsPsych.plugins.parameterType.INT,
         pretty_name: 'Timeout duration for question',
@@ -113,7 +119,7 @@ jsPsych.plugins['survey-control'] = (function() {
     let inputTimeout = null;
     let continueTimeout = null;
 
-    const inputTimeoutDuration = 100;
+    const inputTimeoutDuration = trial.input_timeout;
 
     const trialData = {
       selected_response: -1,

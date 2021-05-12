@@ -57,6 +57,11 @@ _A jsPsych plugin that enables control questions to be added to behavioural expe
 - **Type:** `String`
 - **Description:** HTML code that is placed below the options and buttons. It can be used to describe any custom controls or other useful information.
 
+`input_timeout`
+- **Required:** no
+- **Type:** `int`
+- **Description:** A timeout to allow the participant to read the questions before allowing input, default time is 300 milliseconds.
+
 `timeout`
 - **Required:** no
 - **Type:** `int`
