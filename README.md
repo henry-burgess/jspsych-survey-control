@@ -1,6 +1,8 @@
 # jspsych-survey-control
 _A jsPsych plugin that enables control questions to be added to behavioural experiments._
 
+_Note: This package has been deprecated. Use [jspsych-attention-check](https://www.npmjs.com/package/jspsych-attention-check) instead._
+
 ## Parameters
 `question`
 - **Required:** yes
